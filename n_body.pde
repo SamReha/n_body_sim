@@ -1,13 +1,18 @@
 /* CONFIGURATION */
 static final int     WIDTH         = 950;    // screen width (pixels)
 static final int     HEIGHT        = 720;    // screen height (pixels)
-static final int     NUM_BODIES    = 50;      // how many discrete bodies in the sim?
+static final int     NUM_BODIES    = 500;      // how many discrete bodies in the sim?
 static final float   G             = 50.0;   // gravitational constant
 static final float   MAX_RADIUS    = 40.0;   // maximum radius (in pixels) of body
 static final float   MIN_RADIUS    = 10.0;   // minimum radius (in pixels) of body
 static final float   MAX_START_VEL = 100.0;  // maximum starting velocity of body
 static final boolean ENABLE_SUN    = true;   // true: place "sun" at center of screen. false: no sun
 static final float   SUN_MASS      = 9000.0; // mass of sun, if enabled
+
+/* GLOBAL VARIABLES */
+PGraphics pg;
+PFont f;
+NBodySim sim;
 
 /* N BODY SIM CLASS AND DATA STRUCTURES */
 class Body {
@@ -44,8 +49,9 @@ class Body {
   }
   
   public void draw() {
-    stroke(this.c);
-    circle(pos.x, pos.y, radius);
+    pg.stroke(this.c);
+    pg.noFill();
+    pg.circle(pos.x, pos.y, radius);
   }
 }
 
@@ -53,7 +59,6 @@ class Sun extends Body {
   public Sun() {
     pos = new PVector(WIDTH / 2, HEIGHT / 2);
     vel = new PVector(0.0, 0.0);
-    
     
     this.mass = SUN_MASS;
     this.radius = sqrt(SUN_MASS) / PI;
@@ -105,6 +110,7 @@ class NBodySim {
         distance = PVector.dist(body.pos, other_body.pos);
         force_grav = G * ((body.mass * other_body.mass) / pow(distance, 3));
         
+        // Compute R
         force_vec.x = other_body.pos.x - body.pos.x;
         force_vec.y = other_body.pos.y - body.pos.y;
         force_vec.mult(force_grav);
@@ -128,29 +134,28 @@ class NBodySim {
   }
 }
 
-PFont f;
-NBodySim sim;
-
+/* PROCESSING ENTRY POINTS */
 void settings() {
   size(WIDTH, HEIGHT, P2D);
 }
 
 void setup() {
+  pg = createGraphics(WIDTH, HEIGHT);
   f = createFont("Monospaced", 16, false);
-  
-  ellipseMode(RADIUS);
-  noFill();
-  stroke(255);
-  strokeWeight(4);
-  
   sim = new NBodySim(NUM_BODIES);
+  
+  pg.ellipseMode(RADIUS);
 }
 
 void draw() {
-  background(0);
+  pg.beginDraw();
+  pg.background(0);
+  pg.strokeWeight(4);
   
   sim.tick();
   sim.draw();
   
-  text(frameRate, 10, 10);
+  pg.text(frameRate, 10, 10);
+  pg.endDraw();
+  image(pg, 0, 0);
 }
