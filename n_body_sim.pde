@@ -34,7 +34,6 @@ class Body {
   
   public void draw() {
     pg.stroke(this.c);
-    pg.noFill();
     pg.circle(pos.x, pos.y, radius);
   }
 }
