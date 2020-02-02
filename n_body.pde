@@ -1,23 +1,34 @@
 /* CONFIGURATION */
-static final int   WIDTH      = 950;
-static final int   HEIGHT     = 720;
-static final int   NUM_BODIES = 8;
-static final float G          = 50.0;
-static final float MAX_RADIUS = 40.0;
-static final float MIN_RADIUS = 10.0;
+static final int     WIDTH         = 950;    // screen width (pixels)
+static final int     HEIGHT        = 720;    // screen height (pixels)
+static final int     NUM_BODIES    = 50;      // how many discrete bodies in the sim?
+static final float   G             = 50.0;   // gravitational constant
+static final float   MAX_RADIUS    = 40.0;   // maximum radius (in pixels) of body
+static final float   MIN_RADIUS    = 10.0;   // minimum radius (in pixels) of body
+static final float   MAX_START_VEL = 100.0;  // maximum starting velocity of body
+static final boolean ENABLE_SUN    = true;   // true: place "sun" at center of screen. false: no sun
+static final float   SUN_MASS      = 9000.0; // mass of sun, if enabled
 
 /* N BODY SIM CLASS AND DATA STRUCTURES */
 class Body {
-  private PVector vel;  // in m/s
-  private PVector pos;
-  private float radius; // in m
-  private color c;
+  protected PVector vel;  // in pixels/s
+  protected PVector pos;  // in pixels
+  protected float radius; // in pixels
+  protected color c;
   
   public float mass;    // in kg
   
+  public Body() {
+    vel = new PVector(0.0, 0.0);
+    pos = new PVector(0.0, 0.0);
+    radius = 0;
+    c = color(0, 0, 0);
+    mass = 0.0;
+  }
+  
   public Body(float x_pos, float y_pos, float radius) {
     pos = new PVector(x_pos, y_pos);
-    vel = new PVector(random(-10, 10), random(-10, 10));
+    vel = new PVector(random(-MAX_START_VEL, MAX_START_VEL), random(-MAX_START_VEL, MAX_START_VEL));
     
     this.radius = radius;
     this.mass = radius * radius * PI;
@@ -38,6 +49,19 @@ class Body {
   }
 }
 
+class Sun extends Body {
+  public Sun() {
+    pos = new PVector(WIDTH / 2, HEIGHT / 2);
+    vel = new PVector(0.0, 0.0);
+    
+    
+    this.mass = SUN_MASS;
+    this.radius = sqrt(SUN_MASS) / PI;
+    this.c = color(255, 255, 0);
+  }
+  public void update_velocity(PVector force) { };
+}
+
 class NBodySim {
   ArrayList<Body> bodies;
   
@@ -47,6 +71,8 @@ class NBodySim {
     for (int i = 0; i < num_bodies; i++) {
       bodies.add(new Body(random(WIDTH), random(HEIGHT), random(MIN_RADIUS, MAX_RADIUS)));
     }
+    
+    if (ENABLE_SUN) bodies.add(new Sun());
   }
   
   public void tick() {
