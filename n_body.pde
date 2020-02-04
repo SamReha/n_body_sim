@@ -26,7 +26,7 @@ void setup() {
   sim = new NBodySim(NUM_BODIES);
   
   pg.ellipseMode(RADIUS);
-  frameRate(999); // Effectively unlimit framerate
+  frameRate(9999); // Effectively unlimit framerate
   last_draw_time = 0.0;
 }
 

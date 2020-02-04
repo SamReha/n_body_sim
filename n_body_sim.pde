@@ -70,7 +70,6 @@ class NBodySim {
     float distance;
     float force_grav;
     
-    ArrayList<Body> other_bodies;
     Body body;
     Body other_body;
     
@@ -81,13 +80,12 @@ class NBodySim {
       // Reset force total
       force_total.setMag(0);
       
-      // Get all other bodies
-      other_bodies = new ArrayList<Body>(bodies);
-      other_bodies.remove(body);
-      
       // Compute total force due to gravity
-      for (int k = 0; k < other_bodies.size(); k++) {
-        other_body = other_bodies.get(k);
+      for (int k = 0; k < bodies.size(); k++) {
+        other_body = bodies.get(k);
+        
+        // Don't try to compute your gravitational attraction to yourself...
+        if (other_body == body) continue;
         
         // F = G * ((m1*m2) / r^3) * R
         distance = PVector.dist(body.pos, other_body.pos);
